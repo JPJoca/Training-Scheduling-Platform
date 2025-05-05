@@ -63,8 +63,8 @@ Handles all email notifications sent to clients and managers.
 | **Retry Pattern**        | Training Service           |
 | **Gson**                 | Training Service           |
 | **API Gateway (Zuul)**   | Routing                    |
-| **Service Discovery (Eureka)** |                       |
-| **Client App**           | swift                      |
+| **Eureka** |   Service Discovery                   |
+| **Client App**           | Swing                     |
 
 ---
 
