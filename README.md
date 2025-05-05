@@ -1,3 +1,94 @@
-# Training-Scheduling-Platform
+# Training Scheduling Platform
 
-This project involves the development of a personal training scheduling system consisting of three services: a User Service for user registration and authentication, a Training Scheduling Service that allows clients to search and book available slots, and gym managers to manage gym data, and a Notification Service that sends email notifications for successful bookings and reminders before training sessions. The User Service manages the registration of different user types with specific privileges, such as clients, gym managers, and administrators. The Training Scheduling Service enables the search and reservation of available slots for individual and group training sessions, as well as updating gym and training data. The Notification Service automatically sends notifications to clients and managers about successful bookings, cancellations, and reminders before training sessions. All interactions between the services are routed through an API gateway, while the client application provides a user interface to access all system functionalities.
+This project implements a distributed microservice-based system for managing personal training bookings. The platform consists of three core services and an API Gateway that handles all external requests. The system supports role-based user management, training session booking, and automatic email notifications.
+
+---
+
+## System Overview
+
+### 1. **User Service**
+Handles registration, authentication, and authorization for three user roles:
+- **Admin** (manually inserted, full access)
+- **Client** (can book sessions)
+- **Gym Manager** (manages gym and sessions)
+
+#### Core Features:
+- JWT authentication
+- Account activation via email
+- Profile update functionality
+- Login blocking/unblocking by admin
+- Communication via **ActiveMQ** for notifications
+
+---
+
+### 2. **Training Scheduling Service**
+Enables clients to view, filter, and book training sessions, while gym managers can define gyms and their training programs.
+
+#### Core Features:
+- Gym CRUD (by managers)
+- Training type management (group vs individual)
+- Term filtering (by type, group/individual, weekday)
+- Booking and cancellation logic
+- Integration with User Service to get and update training count (retry pattern)
+- Verloyalty program (e.g., every 10th training is free)
+
+---
+
+### 3. **Notification Service**
+Handles all email notifications sent to clients and managers.
+
+#### Core Features:
+- Activation email
+- Password reset
+- Booking confirmation
+- Training cancellation
+- Reminder (24h before session)
+- Admin-controlled notification templates
+- Notification log with filtering (by type, user email, and date range)
+
+---
+
+## 🔧 Technologies Used
+
+| Technology               | Used In                    |
+|--------------------------|----------------------------|
+| **Java 17**              | All services               |
+| **Spring Boot**          | All services               |
+| **Spring Data JPA**      | User & Notification        |
+| **ActiveMQ**             | All services (JMS Broker)  |
+| **JWT (jjwt)**           | User & Notification        |
+| **Springfox Swagger**    | User & Notification        |
+| **Lombok**               | All services               |
+| **H2 Database**          | User & Notification        |
+| **Retry Pattern**        | Training Service           |
+| **Gson**                 | Training Service           |
+| **API Gateway (Zuul)**   | Routing                    |
+| **Service Discovery (Eureka)** |                       |
+| **Client App**           | swift                      |
+
+---
+
+## 🔁 Service Communication
+
+- **Asynchronous**: All notification-related events (activation, reminders, booking) are sent over **ActiveMQ**
+- **Synchronous**: Training service communicates with the User Service to fetch or update training count using **HTTP REST**, with **retry mechanism** for fault-tolerance
+
+---
+
+## Role-Based Access
+
+| Role       | Abilities                                                                 |
+|------------|---------------------------------------------------------------------------|
+| Admin      | Full control, user management, notification template management           |
+| Client     | Browse & book sessions, cancel bookings, receive notifications            |
+| Manager    | Manage gyms & sessions, set loyalty rules, cancel sessions                |
+
+---
+
+## Notification System
+
+- All notifications are queued and processed asynchronously
+- Messages are templated and customizable by the admin
+- Notification archive accessible with filtering
+
+---
